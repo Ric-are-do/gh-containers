@@ -12,14 +12,33 @@ jobs:
     environment: testing
     runs-on: ubuntu-latest
 
-    # to put a job and its setps into a container , you simply add the container key -> you then add the images you want to add but in order to do this but they must be public images ie like on dockerhub
-    container: node:18
     env:
-      MONGODB_CONNECTION_PROTOCOL: mongodb+srv
-      MONGODB_CLUSTER_ADDRESS: cluster0.ntrwp.mongodb.net
+      MONGODB_CONNECTION_PROTOCOL: mongodb
+      MONGODB_CLUSTER_ADDRESS: mongo # since we are using a service called mongo we can use this as the address to connect to the db - remember that github actions will set this up in a network where the jobs and services can communicate with each other using their names as the address (NB this onbly works for services running in containers)
       MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
       MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
       PORT: 8080
+
+    
+    # to put a job and its setps into a container , you simply add the container key -> you then add the images you want to add but in order to do this but they must be public images ie like on dockerhub
+    # you use the following syntax since you may want to pass in somne variables to the container you can do so by adding the env key under the image key
+    # the env variables you add here are specific to the env variables needed by the container , the other env variablesyou use in your pipeline stay the same 
+    # all the steps will run as per normal but they will run inside a container thats been setup on the "runner "
+    container:
+      image: node:18
+      env: 
+    # if you want to run some additional containers or services like a testing db you can do so by adding the services key - each services belongs to a job 
+    # adding a service that runs a mongo db database 
+    services:
+     #tag or service name - you can call it anything
+      mongo:
+        # services will always run in a container so you need to specify the image you want to use
+        image: mongo
+        
+        # The mongo db image needs 2 env variables in order to get setup and run properly as this controls which username and password will be used to connect to the db 
+        env:
+          MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGODB_USERNAME }}
+          MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
     steps:
       - name: Get Code
         uses: actions/checkout@v3
