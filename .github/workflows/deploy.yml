@@ -11,6 +11,9 @@ jobs:
   test:
     environment: testing
     runs-on: ubuntu-latest
+
+    # to put a job and its setps into a container , you simply add the container key -> you then add the images you want to add but in order to do this but they must be public images ie like on dockerhub
+    container: node:18
     env:
       MONGODB_CONNECTION_PROTOCOL: mongodb+srv
       MONGODB_CLUSTER_ADDRESS: cluster0.ntrwp.mongodb.net
